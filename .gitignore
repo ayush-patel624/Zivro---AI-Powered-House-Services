@@ -1,0 +1,30 @@
+# Java
+backend/target/
+*.class
+*.jar
+*.war
+*.iml
+.idea/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# Logs & local artifacts
+backend/*.log
+backend/**/*.log
+backend/smoke-*.json
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cursor / IDE / dev-only (not for GitHub)
+agent-transcripts/
+assets/
+mcps/
+terminals/
+frontend/capture-intro.mjs

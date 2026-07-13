@@ -1,0 +1,30 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# 1. Create a MySQL database on Render (or PlanetScale) and set ZIVRO_DB_* on the web service.
+# 2. Set ZIVRO_JWT_SECRET and ZIVRO_BOOTSTRAP_ADMIN_* before first deploy.
+# 3. After deploy, set ZIVRO_CORS_ORIGINS to your Vercel URL.
+
+services:
+  - type: web
+    name: zivro-api
+    runtime: java
+    rootDir: backend
+    buildCommand: mvn -B package -DskipTests
+    startCommand: java -jar target/zivro-api-0.1.0-SNAPSHOT.jar
+    healthCheckPath: /api/health
+    envVars:
+      - key: JAVA_VERSION
+        value: "21"
+      - key: ZIVRO_JWT_SECRET
+        generateValue: true
+      - key: ZIVRO_DB_URL
+        sync: false
+      - key: ZIVRO_DB_USER
+        sync: false
+      - key: ZIVRO_DB_PASSWORD
+        sync: false
+      - key: ZIVRO_CORS_ORIGINS
+        sync: false
+      - key: ZIVRO_BOOTSTRAP_ADMIN_EMAIL
+        sync: false
+      - key: ZIVRO_BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
