@@ -29,7 +29,7 @@ public class CloudinaryDisabledService implements CloudinaryService {
             throw new BadRequestException("Could not store uploaded image locally.");
         }
 
-        // Keep DB URL small; controller serves bytes from temp dir.
+        // Keep DB URL small , controller serves bytes from temp dir.
         String url = "/api/local-media/" + key;
         return new CloudinaryUploadResult(url, publicId);
     }
