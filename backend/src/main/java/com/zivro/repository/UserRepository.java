@@ -11,6 +11,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmailIgnoreCase(String email);
 
+    //Finding user by email and fetching worker profile
     @Query(
             "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.workerProfile WHERE LOWER(u.email) = LOWER(:email)")
     Optional<User> findByEmailIgnoreCaseWithWorker(@Param("email") String email);
