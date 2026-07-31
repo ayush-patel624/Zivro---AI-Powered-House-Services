@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'//admin dashboard page, shows some stats and charts for the admin to see. Uses recharts for the charts
 import {
   Bar,
   BarChart,
