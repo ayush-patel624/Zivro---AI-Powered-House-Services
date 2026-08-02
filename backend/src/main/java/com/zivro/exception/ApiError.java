@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Value;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Value
 @Builder
