@@ -93,7 +93,7 @@ public class BookingPaymentService {
                 throw new BadRequestException("Could not create balance payment order.");
             }
         } else {
-            b.setPaymentStatus(PaymentStatus.PAID);
+            b.setPaymentStatus(PaymentStatus.PENDING);
         }
         bookingRepository.save(b);
     }
@@ -129,6 +129,22 @@ public class BookingPaymentService {
         BigDecimal paid = fetchPaymentAmountInRupees(paymentId);
         applyCapturedPayment(b, orderId, paymentId, paid);
         bookingRepository.save(b);
+        return bookingRepository.findDetailById(bookingId).map(BookingMapper::toResponse).orElseThrow();
+    }
+
+    @Transactional
+    public BookingResponse dummyPay(Long bookingId, User user) {
+        Booking b = bookingRepository.findByIdForUpdate(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found."));
+        if (!b.getUser().getId().equals(user.getId()) && user.getRole() != com.zivro.domain.Role.ADMIN) {
+            throw new ForbiddenException("Only the booking owner or admin can confirm payment.");
+        }
+        if (b.getPaymentStatus() == PaymentStatus.PENDING || b.getPaymentStatus() == PaymentStatus.PARTIALLY_PAID || b.getPaymentStatus() == PaymentStatus.NOT_CONFIGURED) {
+            BigDecimal targetAmount = b.getFinalPriceAfterSatisfaction() != null ? b.getFinalPriceAfterSatisfaction() : b.getPrice();
+            b.setAmountPaid(targetAmount);
+            b.setPaymentStatus(PaymentStatus.PAID);
+            bookingRepository.save(b);
+        }
         return bookingRepository.findDetailById(bookingId).map(BookingMapper::toResponse).orElseThrow();
     }
 

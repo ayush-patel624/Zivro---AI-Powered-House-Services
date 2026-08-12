@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../auth/AuthContext'
+import { GoogleLogin } from '@react-oauth/google'
 
 export default function Login() {
-  const { user, login } = useAuth()
+  const { user, login, loginWithGoogle } = useAuth()
   const location = useLocation()
   const from = location.state?.from?.pathname || '/dashboard'
   const [email, setEmail] = useState('')
@@ -28,6 +29,15 @@ export default function Login() {
     }
   }
 
+  async function handleGoogleSuccess(credentialResponse) {
+    setError('')
+    try {
+      await loginWithGoogle(credentialResponse.credential)
+    } catch (err) {
+      setError('Google sign in failed.')
+    }
+  }
+
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16">
       <h1 className="text-3xl font-bold text-white">Welcome back</h1>
@@ -43,6 +53,19 @@ export default function Login() {
             {error}
           </div>
         )}
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google sign in failed.')}
+            theme="filled_black"
+            shape="pill"
+          />
+        </div>
+        <div className="relative flex items-center py-2">
+          <div className="flex-grow border-t border-white/10"></div>
+          <span className="mx-4 flex-shrink-0 text-xs font-medium uppercase text-slate-500">or</span>
+          <div className="flex-grow border-t border-white/10"></div>
+        </div>
         <label className="block">
           <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Email</span>
           <input

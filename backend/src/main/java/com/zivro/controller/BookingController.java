@@ -133,6 +133,12 @@ public class BookingController {
         return ratingService.submitRating(id, user, request);
     }
 
+    @PostMapping("/{id:\\d+}/payments/dummy-pay")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public BookingResponse dummyPay(@PathVariable Long id, @AuthenticationPrincipal User user) {
+        return bookingPaymentService.dummyPay(id, user);
+    }
+
     @PostMapping("/{id:\\d+}/payments/verify")
     @PreAuthorize("hasAnyRole('USER','WORKER','ADMIN')")
     public BookingResponse verifyPayment(

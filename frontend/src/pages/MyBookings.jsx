@@ -74,8 +74,21 @@ export default function MyBookings() {
 
   async function payBooking(b) {
     const { data: payCfg } = await api.get('/api/payments/public-config')
-    if (!payCfg.razorpayEnabled || !payCfg.razorpayKeyId || !b.activeRazorpayOrderId) {
-      setError('Online payment is not available.')
+    if (!payCfg.razorpayEnabled || !payCfg.razorpayKeyId) {
+      setPayingId(b.id)
+      setError('')
+      try {
+        await api.post(`/api/bookings/${b.id}/payments/dummy-pay`)
+        load()
+      } catch (e) {
+        setError(e.response?.data?.message || 'Dummy payment failed.')
+      } finally {
+        setPayingId(null)
+      }
+      return
+    }
+    if (!b.activeRazorpayOrderId) {
+      setError('Payment order not available.')
       return
     }
     setPayingId(b.id)
@@ -205,18 +218,20 @@ export default function MyBookings() {
                     )}
                   </p>
                 )}
-                {b.activeRazorpayOrderId && (
+                {(b.paymentStatus === 'PENDING' || b.paymentStatus === 'PARTIALLY_PAID') && (
                   <button
                     type="button"
                     disabled={payingId === b.id}
                     onClick={() => payBooking(b)}
-                    className="mt-3 rounded-lg bg-zivro-blue/20 px-4 py-2 text-sm font-medium text-zivro-blue disabled:opacity-50"
+                    className="mt-3 rounded-lg bg-gradient-to-r from-zivro-blue to-zivro-green px-4 py-2 text-sm font-semibold text-zivro-ink disabled:opacity-50"
                   >
                     {payingId === b.id
-                      ? 'Opening checkout…'
-                      : b.razorpayBalanceOrderId && b.activeRazorpayOrderId === b.razorpayBalanceOrderId
-                        ? `Pay balance ${formatInr(b.amountDueNext)}`
-                        : `Pay deposit ${formatInr(b.amountDueNext)}`}
+                      ? 'Processing…'
+                      : b.activeRazorpayOrderId
+                        ? b.razorpayBalanceOrderId && b.activeRazorpayOrderId === b.razorpayBalanceOrderId
+                          ? `Pay balance ${formatInr(b.amountDueNext)}`
+                          : `Pay deposit ${formatInr(b.amountDueNext)}`
+                        : 'Pay (Dummy)'}
                   </button>
                 )}
                 {b.images && (

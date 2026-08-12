@@ -149,6 +149,9 @@ public class BookingService {
     @Transactional
     public BookingResponse accept(Long bookingId, User user) {
         Worker worker = requireWorkerProfile(user);
+        if (!worker.isVerified()) {
+            throw new ForbiddenException("Your account must be verified by an admin before you can accept jobs.");
+        }
         Booking b =
                 bookingRepository
                         .findByIdForUpdate(bookingId)

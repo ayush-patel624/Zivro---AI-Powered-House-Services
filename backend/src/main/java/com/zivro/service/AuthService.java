@@ -108,4 +108,73 @@ public class AuthService {
         } while (workerRepository.existsByEmployeeId(candidate));
         return candidate;
     }
+
+    @Transactional
+    public AuthResponse googleLogin(String googleToken, String googleClientId, Role requestedRole, String workerCategory) {
+        try {
+            com.google.api.client.http.HttpTransport transport = new com.google.api.client.http.javanet.NetHttpTransport();
+            com.google.api.client.json.JsonFactory jsonFactory = new com.google.api.client.json.gson.GsonFactory();
+            com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier verifier = 
+                new com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                .setAudience(java.util.Collections.singletonList(googleClientId))
+                .build();
+
+            com.google.api.client.googleapis.auth.oauth2.GoogleIdToken idToken = verifier.verify(googleToken);
+            if (idToken == null) {
+                throw new BadRequestException("Invalid Google token.");
+            }
+
+            com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload payload = idToken.getPayload();
+            String email = payload.getEmail();
+            String name = (String) payload.get("name");
+            String googleId = payload.getSubject();
+
+            User user = userRepository.findByEmailIgnoreCaseWithWorker(email).orElse(null);
+
+            if (user == null) {
+                Role finalRole = (requestedRole != null) ? requestedRole : Role.USER;
+                if (finalRole == Role.ADMIN) {
+                    throw new BadRequestException("Self-service registration as ADMIN is not allowed.");
+                }
+                if (finalRole == Role.WORKER && !StringUtils.hasText(workerCategory)) {
+                    throw new BadRequestException("workerCategory is required for worker registration.");
+                }
+
+                user = User.builder()
+                        .name(name)
+                        .email(email)
+                        .password(passwordEncoder.encode(java.util.UUID.randomUUID().toString())) // dummy password
+                        .role(finalRole)
+                        .authProvider(com.zivro.domain.AuthProvider.GOOGLE)
+                        .googleId(googleId)
+                        .build();
+                user = userRepository.save(user);
+
+                if (finalRole == Role.WORKER) {
+                    Worker worker = Worker.builder()
+                            .user(user)
+                            .category(workerCategory.trim())
+                            .employeeId(nextEmployeeId())
+                            .build();
+                    worker = workerRepository.save(worker);
+                    user.setWorkerProfile(worker);
+                }
+            } else if (user.getAuthProvider() == com.zivro.domain.AuthProvider.LOCAL) {
+                // Link account
+                user.setAuthProvider(com.zivro.domain.AuthProvider.GOOGLE);
+                user.setGoogleId(googleId);
+                user = userRepository.save(user);
+            }
+
+            String token = jwtService.generateToken(user.getEmail(), user.getId(), user.getRole());
+            return AuthResponse.builder()
+                    .accessToken(token)
+                    .tokenType("Bearer")
+                    .user(UserMapper.toResponse(user))
+                    .build();
+
+        } catch (Exception e) {
+            throw new BadRequestException("Failed to verify Google token: " + e.getMessage());
+        }
+    }
 }

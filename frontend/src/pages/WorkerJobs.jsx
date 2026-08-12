@@ -134,6 +134,11 @@ export default function WorkerJobs() {
           {error}
         </p>
       )}
+      {!user?.worker?.verified && (
+        <div className="mt-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4 text-sm text-yellow-200">
+          Your account is pending verification. You cannot accept jobs until an admin verifies your profile.
+        </div>
+      )}
       {loading && <p className="mt-8 text-slate-500">Loading…</p>}
 
       <section className="mt-12">
@@ -159,8 +164,9 @@ export default function WorkerJobs() {
               </div>
               <button
                 type="button"
+                disabled={!user?.worker?.verified}
                 onClick={() => postAction(`/api/bookings/${b.id}/accept`)}
-                className="rounded-xl bg-gradient-to-r from-zivro-blue to-zivro-green px-4 py-2 text-sm font-semibold text-zivro-ink"
+                className="rounded-xl bg-gradient-to-r from-zivro-blue to-zivro-green px-4 py-2 text-sm font-semibold text-zivro-ink disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Accept / claim
               </button>
@@ -201,8 +207,9 @@ export default function WorkerJobs() {
                   <>
                     <button
                       type="button"
+                      disabled={!user?.worker?.verified}
                       onClick={() => postAction(`/api/bookings/${b.id}/accept`)}
-                      className="rounded-lg bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/15"
+                      className="rounded-lg bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/15 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Accept invite
                     </button>

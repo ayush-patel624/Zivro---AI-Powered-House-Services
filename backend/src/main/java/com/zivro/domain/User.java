@@ -52,6 +52,14 @@ public class User implements UserDetails {
     @Column(length = 500)
     private String address;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider", nullable = false, length = 32)
+    @Builder.Default
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
+    @Column(name = "google_id", unique = true, length = 255)
+    private String googleId;
+
     @OneToOne(mappedBy = "user")
     private Worker workerProfile;
 

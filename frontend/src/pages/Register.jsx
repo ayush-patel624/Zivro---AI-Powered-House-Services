@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../auth/AuthContext'
+import { GoogleLogin } from '@react-oauth/google'
 
 export default function Register() {
-  const { user, register } = useAuth()
+  const { user, register, loginWithGoogle } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -43,6 +44,20 @@ export default function Register() {
     }
   }
 
+  async function handleGoogleSuccess(credentialResponse) {
+    setError('')
+    try {
+      await loginWithGoogle(credentialResponse.credential, {
+        role,
+        workerCategory: role === 'WORKER' ? workerCategory : undefined,
+      })
+    } catch (err) {
+      const body = err.response?.data
+      const msg = body?.message || 'Google sign up failed.'
+      setError(msg)
+    }
+  }
+
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16">
       <h1 className="text-3xl font-bold text-white">Join Zivro</h1>
@@ -58,6 +73,20 @@ export default function Register() {
             {error}
           </div>
         )}
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError('Google sign up failed.')}
+            theme="filled_black"
+            shape="pill"
+            text="signup_with"
+          />
+        </div>
+        <div className="relative flex items-center py-2">
+          <div className="flex-grow border-t border-white/10"></div>
+          <span className="mx-4 flex-shrink-0 text-xs font-medium uppercase text-slate-500">or</span>
+          <div className="flex-grow border-t border-white/10"></div>
+        </div>
         <label className="block">
           <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Full name</span>
           <input

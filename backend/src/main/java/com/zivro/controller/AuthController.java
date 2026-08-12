@@ -39,4 +39,11 @@ public class AuthController {
     public UserResponse me(@AuthenticationPrincipal UserDetails principal) {
         return authService.me(principal.getUsername());
     }
+
+    @PostMapping("/google")
+    public AuthResponse googleLogin(
+            @Valid @RequestBody com.zivro.dto.GoogleLoginRequest request,
+            @org.springframework.beans.factory.annotation.Value("${ZIVRO_GOOGLE_CLIENT_ID:14405976128-hfobk3av965n7jr93ah7h981f2ihhjii.apps.googleusercontent.com}") String googleClientId) {
+        return authService.googleLogin(request.getCredential(), googleClientId, request.getRole(), request.getWorkerCategory());
+    }
 }

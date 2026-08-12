@@ -41,7 +41,7 @@ public class SecurityConfig {
                         auth ->
                                 auth.requestMatchers(HttpMethod.OPTIONS, "/**")
                                         .permitAll()
-                                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/health")
+                                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/google", "/api/health")
                                         .permitAll()
                                         .requestMatchers("/api/payments/public-config")
                                         .permitAll()
