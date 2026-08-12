@@ -198,15 +198,16 @@ If the backend was started with bootstrap env vars, use:
 
 > **Security warning:** Change `admin` to a strong password before deploying to the internet. Never commit real passwords to Git.
 
-### Create admin on first backend start (Windows PowerShell example)
+### Create admin on first backend start
 
-```powershell
-cd backend
-$env:ZIVRO_BOOTSTRAP_ADMIN_EMAIL="admin@zivro.com"
-$env:ZIVRO_BOOTSTRAP_ADMIN_PASSWORD="admin"
-$env:ZIVRO_BOOTSTRAP_ADMIN_NAME="Admin"
-mvn spring-boot:run
+1. Ensure your `backend/.env` file contains the bootstrap variables:
+```env
+ZIVRO_BOOTSTRAP_ADMIN_EMAIL=admin@zivro.com
+ZIVRO_BOOTSTRAP_ADMIN_PASSWORD=admin
+ZIVRO_BOOTSTRAP_ADMIN_NAME="Admin"
 ```
+
+2. Start the backend (via IntelliJ EnvFile plugin or PowerShell command in Step 2).
 
 Look for log line: `Created bootstrap ADMIN user for admin@zivro.com`  
 If the email already exists, bootstrap is skipped (login with existing password).
@@ -227,15 +228,28 @@ Create a database named `zivro`. Default connection: user `root`, password `root
 
 ### Step 2 — Start the backend (API)
 
-```bash
-cd backend
-# Set admin (optional, first run only)
-# Windows PowerShell:
-$env:ZIVRO_BOOTSTRAP_ADMIN_EMAIL="admin@zivro.com"
-$env:ZIVRO_BOOTSTRAP_ADMIN_PASSWORD="admin"
-$env:PORT="8081"   # use 8081 if port 8080 is busy on your PC
+To keep your credentials secure, Zivro reads configuration from a `.env` file rather than hardcoded `application.yml` files.
 
-mvn spring-boot:run
+1. Inside the `backend` folder, create a file named `.env` (or copy from `.env.example`).
+2. Add your local configuration:
+```env
+PORT=8081
+ZIVRO_BOOTSTRAP_ADMIN_EMAIL=admin@zivro.com
+ZIVRO_BOOTSTRAP_ADMIN_PASSWORD=admin
+# See the Environment Variables section for Cloudinary, Database, and Razorpay setup.
+```
+
+**Running in IntelliJ IDEA (Recommended):**
+1. Install the **"EnvFile"** plugin by Borys Minaiev from `File > Settings > Plugins`.
+2. Edit your `ZivroApplication` run configuration.
+3. Open the **"EnvFile"** tab, check **"Enable EnvFile"**.
+4. Click `+` → `.env file` and select `backend/.env`.
+5. Click **Play**!
+
+**Running via Terminal (Windows PowerShell):**
+```powershell
+cd backend
+Get-Content .env | Foreach-Object { $p = $_ -split '=', 2; if ($p.Length -eq 2) { [Environment]::SetEnvironmentVariable($p[0].Trim(), $p[1].Trim(), "Process") } }; .\mvnw.cmd spring-boot:run
 ```
 
 **Verify:** open http://localhost:8081/api/health → should show `{"status":"UP","service":"zivro-api"}`

@@ -1,14 +1,23 @@
 spring:
   application:
     name: zivro-api
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    repair: true
+    clean-disabled: false
+    clean-on-validation-error: true
+    out-of-order: true
+    ignore-migration-patterns:
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 12MB
   datasource:
-    url: ${ZIVRO_DB_URL:jdbc:mysql://localhost:3306/zivro?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-    username: ${ZIVRO_DB_USER:root}
-    password: ${ZIVRO_DB_PASSWORD:root}
+    url: ${ZIVRO_DB_URL:}
+    username: ${ZIVRO_DB_USER:}
+    password: ${ZIVRO_DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: validate
@@ -16,9 +25,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
 
 zivro:
   razorpay:
@@ -31,7 +37,7 @@ zivro:
   bootstrap-admin:
     email: ${ZIVRO_BOOTSTRAP_ADMIN_EMAIL:}
     password: ${ZIVRO_BOOTSTRAP_ADMIN_PASSWORD:}
-    name: ${ZIVRO_BOOTSTRAP_ADMIN_NAME:Admin}
+    name: ${ZIVRO_BOOTSTRAP_ADMIN_NAME:}
   cloudinary:
     enabled: ${ZIVRO_CLOUDINARY_ENABLED:false}
     cloud-name: ${ZIVRO_CLOUDINARY_CLOUD_NAME:}
@@ -39,12 +45,14 @@ zivro:
     api-secret: ${ZIVRO_CLOUDINARY_API_SECRET:}
     upload-folder: ${ZIVRO_CLOUDINARY_FOLDER:zivro}
   jwt:
-    # HS256: use at least 32 bytes in production (set ZIVRO_JWT_SECRET).
-    secret: ${ZIVRO_JWT_SECRET:zivro-dev-hmac-secret-key-min-32-chars!!}
+    # HS256: use at least 32 bytes in production (set ZIŚVRO_JWT_SECRET).
+    secret: ${ZIVRO_JWT_SECRET:}
     expiration-ms: ${ZIVRO_JWT_EXPIRATION_MS:86400000}
   cors:
     # Comma-separated production origins, e.g. https://zivro.vercel.app
     allowed-origins: ${ZIVRO_CORS_ORIGINS:}
+  google:
+    client-id: ${ZIVRO_GOOGLE_CLIENT_ID:}
 
 server:
   port: ${PORT:8080}
