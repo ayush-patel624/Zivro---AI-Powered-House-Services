@@ -1,5 +1,8 @@
 # Zivro — AI-Assisted Home Service Marketplace
 
+**🚀 Live Demo:** [https://zivro-ai-powered-house-services.vercel.app](https://zivro-ai-powered-house-services.vercel.app)
+*(Backend API is hosted on Render at `https://zivro-api.onrender.com`)*
+
 **Zivro** is a full-stack web application (website + installable mobile app) that connects **customers** who need home services with **verified workers** who perform the job. Think of it like a simplified Uber/Rapido, but for cleaning, cooking, laundry, plumbing, and similar tasks.
 
 This document explains **what** the project does, **how** it is built, **where** each part lives, and **how to run it on your computer** or **publish it on the internet** (Vercel + cloud database + API hosting).
